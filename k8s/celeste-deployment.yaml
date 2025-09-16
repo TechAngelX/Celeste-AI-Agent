@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celeste-agent
+spec:
+  selector:
+    matchLabels:
+      app: celeste-agent
+  template:
+    metadata:
+      labels:
+        app: celeste-agent
+    spec:
+      containers:
+      - name: server
+        image: us-central1-docker.pkg.dev/gen-lang-client-0578425021/celeste-repo/celeste-ai:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: PORT
+          value: "8080"
+        - name: GEMINI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: celeste-secrets
+              key: gemini-api-key
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: celeste-agent
+spec:
+  type: ClusterIP
+  selector:
+    app: celeste-agent
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
