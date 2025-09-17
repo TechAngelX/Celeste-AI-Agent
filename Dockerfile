@@ -12,6 +12,8 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 
 COPY --from=builder /app/celeste-agent .
+COPY --from=builder /app/home.html .
+
 
 EXPOSE 8080
 CMD ["./celeste-agent"]

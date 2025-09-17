@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head><title>Test Céleste</title></head>
+<body>
+    <h1>Céleste Chat Test</h1>
+    <input type="text" id="message" placeholder="Type your message" />
+    <button onclick="sendMessage()">Send</button>
+    <div id="response"></div>
+    
+    <script>
+    async function sendMessage() {
+        const message = document.getElementById('message').value;
+        const response = await fetch('/chat', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({query: message})
+        });
+        const data = await response.json();
+        document.getElementById('response').innerHTML = data.message;
+    }
+    </script>
+</body>
+</html>

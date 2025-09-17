@@ -21,19 +21,18 @@ type ChatResponse struct {
 }
 
 func main() {
-	// Check for API key
+	// Check for API key secret
 	apiKey := os.Getenv("GEMINI_API_KEY")
 	if apiKey == "" {
 		log.Fatal("GEMINI_API_KEY environment variable is required")
 	}
 
-	// Initialize Gemini client
+	// Initialise Gemini client
 	ctx := context.Background()
 	client, err := genai.NewClient(ctx, nil)
 	if err != nil {
 		log.Fatal("Failed to create Gemini client:", err)
 	}
-	// Remove the defer client.Close() line
 
 	// Set up routes
 	router := mux.NewRouter()
@@ -48,6 +47,9 @@ func main() {
 
 	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Celeste is healthy!")
+	}).Methods("GET")
+	router.HandleFunc("/home", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./home.html")
 	}).Methods("GET")
 
 	port := ":8080"
