@@ -1,0 +1,16 @@
+{
+  "products": [
+    {
+      "id": "L9ECAV7KIM",
+      "name": "Leather Ankle Boots",
+      "description": "Stylish brown leather ankle boots with comfortable heel",
+      "picture": "/static/img/products/boots.jpg",
+      "priceUsd": {
+        "currency_code": "USD",
+        "units": 89,
+        "nanos": 950000000
+      },
+      "categories": ["footwear", "boots", "leather"]
+    }
+  ]
+}

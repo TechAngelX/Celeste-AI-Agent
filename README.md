@@ -1,7 +1,7 @@
 cat > README.md << 'EOF'
 # Introducing Céleste. The AI Shopping Assistant
 
-An intelligent shopping assistant AI chatbot built for the **GKE Turns 10 Hackathon**. Céleste is an AI-powered microservice that enhances the Google Online Boutique demo application with conversational shopping assistance using Google Gemini AI.
+An intelligent shopping assistant AI chatbot built for the **GKE Turns 10 Hackathon**. Céleste is an enhanced agentic AI-powered microservice that enhances the Google Online Boutique demo application with conversational shopping assistance using Google Gemini AI.
 
 ## Hackathon Challenge
 

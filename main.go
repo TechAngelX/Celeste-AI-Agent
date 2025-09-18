@@ -10,80 +10,95 @@ import (
 
 	"github.com/gorilla/mux"
 	"google.golang.org/genai"
+
+	"celeste/agents"
 )
 
 type ChatRequest struct {
-	Query string `json:"query"`
+	Query  string `json:"query"`
+	UserID string `json:"user_id,omitempty"`
 }
 
-type ChatResponse struct {
-	Message string `json:"message"`
+type CelesteService struct {
+	orchestrator *agents.AgentOrchestrator
 }
 
 func main() {
-	// Check for API key secret
 	apiKey := os.Getenv("GEMINI_API_KEY")
 	if apiKey == "" {
 		log.Fatal("GEMINI_API_KEY environment variable is required")
 	}
 
-	// Initialise Gemini client
 	ctx := context.Background()
 	client, err := genai.NewClient(ctx, nil)
 	if err != nil {
 		log.Fatal("Failed to create Gemini client:", err)
 	}
 
-	// Set up routes
+	orchestrator := agents.NewAgentOrchestrator(client)
+	if err := orchestrator.Initialize(); err != nil {
+		log.Fatal("Failed to initialize agent orchestrator:", err)
+	}
+
+	service := &CelesteService{
+		orchestrator: orchestrator,
+	}
+
 	router := mux.NewRouter()
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello! I'm Celeste, your AI shopping assistant!")
+		fmt.Fprintf(w, "Celeste Multi-Agent AI Shopping Assistant")
 	}).Methods("GET")
 
-	router.HandleFunc("/chat", func(w http.ResponseWriter, r *http.Request) {
-		handleChat(w, r, client)
-	}).Methods("POST")
+	router.HandleFunc("/chat", service.handleChat).Methods("POST")
 
 	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Celeste is healthy!")
+		agentList := service.orchestrator.ListAgents()
+		response := map[string]interface{}{
+			"status":      "healthy",
+			"agents":      agentList,
+			"agent_count": len(agentList),
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
 	}).Methods("GET")
+
 	router.HandleFunc("/home", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./home.html")
+		http.ServeFile(w, r, "./web/home.html")
+	}).Methods("GET")
+
+	router.HandleFunc("/agents", func(w http.ResponseWriter, r *http.Request) {
+		agentList := service.orchestrator.ListAgents()
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"agents": agentList,
+			"count":  len(agentList),
+		})
 	}).Methods("GET")
 
 	port := ":8080"
-	fmt.Printf("Celeste is starting on port %s\n", port)
+	fmt.Printf("Celeste Multi-Agent System starting on port %s\n", port)
 	log.Fatal(http.ListenAndServe(port, router))
 }
-func handleChat(w http.ResponseWriter, r *http.Request, client *genai.Client) {
+
+func (s *CelesteService) handleChat(w http.ResponseWriter, r *http.Request) {
 	var req ChatRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
 
-	ctx := r.Context()
-
-	prompt := fmt.Sprintf(`You are Celeste, a helpful and friendly shopping assistant for an online boutique.
-    The customer said: "%s"
-
-    Respond as Celeste in a helpful, conversational way. Keep it brief but friendly.`, req.Query)
-
-	resp, err := client.Models.GenerateContent(
-		ctx,
-		"gemini-2.5-flash",
-		genai.Text(prompt),
-		nil,
-	)
-	if err != nil {
-		log.Printf("Gemini error: %v", err)
-		http.Error(w, "Sorry, I'm having trouble right now", http.StatusInternalServerError)
-		return
+	userID := req.UserID
+	if userID == "" {
+		userID = "anonymous_user"
 	}
 
-	response := ChatResponse{
-		Message: resp.Text(),
+	ctx := r.Context()
+	response, err := s.orchestrator.ProcessUserRequest(ctx, userID, req.Query)
+	if err != nil {
+		log.Printf("Orchestrator error: %v", err)
+		http.Error(w, "Agent processing failed", http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
