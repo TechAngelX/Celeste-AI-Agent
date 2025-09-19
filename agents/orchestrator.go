@@ -1,4 +1,3 @@
-// agents/orchestrator.go
 package agents
 
 import (
@@ -29,7 +28,6 @@ func NewAgentOrchestrator(geminiClient *genai.Client) *AgentOrchestrator {
 	}
 }
 
-// ADK-inspired agent lifecycle management
 func (ao *AgentOrchestrator) RegisterAgent(agent models.Agent) error {
 	ao.mutex.Lock()
 	defer ao.mutex.Unlock()
@@ -43,9 +41,7 @@ func (ao *AgentOrchestrator) RegisterAgent(agent models.Agent) error {
 	return nil
 }
 
-// Initialize all agents
 func (ao *AgentOrchestrator) Initialize() error {
-	// Register specialized agents
 	inventoryAgent := NewInventoryAgent(ao.geminiClient)
 	searchAgent := NewSearchAgent(ao.geminiClient)
 	recommendationAgent := NewRecommendationAgent(ao.geminiClient)
@@ -58,14 +54,12 @@ func (ao *AgentOrchestrator) Initialize() error {
 		}
 	}
 
-	// Start message processing
 	go ao.processMessages()
 
 	log.Printf("Agent orchestrator initialized with %d agents", len(ao.agents))
 	return nil
 }
 
-// MCP-inspired context management
 func (ao *AgentOrchestrator) UpdateUserContext(userID string, context *models.UserContext) {
 	ao.mutex.Lock()
 	defer ao.mutex.Unlock()
@@ -78,7 +72,6 @@ func (ao *AgentOrchestrator) GetUserContext(userID string) *models.UserContext {
 	return ao.contextStore[userID]
 }
 
-// A2A-inspired agent communication
 func (ao *AgentOrchestrator) sendToAgent(message models.AgentMessage) {
 	select {
 	case ao.messageBus <- message:
@@ -100,9 +93,7 @@ func (ao *AgentOrchestrator) processMessages() {
 	}
 }
 
-// Main workflow orchestration
 func (ao *AgentOrchestrator) ProcessUserRequest(ctx context.Context, userID, query string) (*models.CelesteResponse, error) {
-	// Get or create user context
 	userContext := ao.GetUserContext(userID)
 	if userContext == nil {
 		userContext = &models.UserContext{
@@ -123,7 +114,6 @@ func (ao *AgentOrchestrator) ProcessUserRequest(ctx context.Context, userID, que
 	workflowID := fmt.Sprintf("workflow_%s_%d", userID, time.Now().Unix())
 	agentPath := []string{}
 
-	// Step 1: Search products
 	searchMsg := models.AgentMessage{
 		ID:        fmt.Sprintf("%s_search", workflowID),
 		FromAgent: "orchestrator",
@@ -141,7 +131,6 @@ func (ao *AgentOrchestrator) ProcessUserRequest(ctx context.Context, userID, que
 	}
 	agentPath = append(agentPath, "search_agent")
 
-	// Step 2: Get inventory status
 	inventoryMsg := models.AgentMessage{
 		ID:        fmt.Sprintf("%s_inventory", workflowID),
 		FromAgent: "orchestrator",
@@ -161,7 +150,6 @@ func (ao *AgentOrchestrator) ProcessUserRequest(ctx context.Context, userID, que
 		agentPath = append(agentPath, "inventory_agent")
 	}
 
-	// Step 3: Generate personalized recommendations
 	recMsg := models.AgentMessage{
 		ID:        fmt.Sprintf("%s_recommendations", workflowID),
 		FromAgent: "orchestrator",
@@ -184,24 +172,20 @@ func (ao *AgentOrchestrator) ProcessUserRequest(ctx context.Context, userID, que
 		agentPath = append(agentPath, "recommendation_agent")
 	}
 
-	// Synthesize final response - TODO // perhaps work to create real gRPC calls to the online boutique api.
 	return ao.synthesizeResponse(query, searchResponse, inventoryResponse, recResponse, workflowID, agentPath)
 }
 
 func (ao *AgentOrchestrator) synthesizeResponse(query string, searchResp, invResp, recResp *models.AgentResponse, workflowID string, agentPath []string) (*models.CelesteResponse, error) {
-	// Extract products from search results
 	var products []models.Product
 	if searchData, ok := searchResp.Data["products"].([]models.Product); ok {
 		products = searchData
 	}
 
-	// Extract actions from recommendation agent
 	actions := []string{"Browse similar items", "Add to wishlist", "Get size guidance"}
 	if recActions, ok := recResp.Data["actions"].([]string); ok {
 		actions = recActions
 	}
 
-	// Generate AI response incorporating all agent insights
 	message := ao.generateAgentCoordinatedResponse(query, searchResp, invResp, recResp)
 
 	return &models.CelesteResponse{
@@ -221,7 +205,7 @@ Customer query: "%s"
 
 Agent coordination results:
 - Search Agent: Found products and analyzed intent
-- Inventory Agent: Checked stock levels and availability
+- Inventory Agent: Checked stock levels and availability  
 - Recommendation Agent: Generated personalized suggestions
 
 Provide a response that demonstrates this multi-agent coordination while being helpful and conversational.`, query)

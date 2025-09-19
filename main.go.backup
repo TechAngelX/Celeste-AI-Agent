@@ -1,0 +1,132 @@
+package main
+
+import (
+    "celeste/analytics"	"context"
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+	"os"
+
+	"github.com/gorilla/mux"
+	"google.golang.org/genai"
+
+	"celeste/agents"
+)
+
+type ChatRequest struct {
+	Query  string `json:"query"`
+	UserID string `json:"user_id,omitempty"`
+}
+
+type CelesteService struct {
+	orchestrator *agents.AgentOrchestrator
+}
+
+func main() {
+	apiKey := os.Getenv("GEMINI_API_KEY")
+	if apiKey == "" {
+		log.Fatal("GEMINI_API_KEY environment variable is required")
+	}
+
+	ctx := context.Background()
+	client, err := genai.NewClient(ctx, nil)
+	if err != nil {
+		log.Fatal("Failed to create Gemini client:", err)
+	}
+
+	orchestrator := agents.NewAgentOrchestrator(client)
+	if err := orchestrator.Initialize(); err != nil {
+		log.Fatal("Failed to initialize agent orchestrator:", err)
+	}
+
+    // Initialize BigQuery service
+    bqService, err := analytics.NewBigQueryService("gen-lang-client-0578425021")
+    if err != nil {
+        log.Printf("BigQuery initialization failed: %v", err)
+    }
+    
+    service := &CelesteService{
+        orchestrator: orchestrator,
+    }
+    
+    if bqService != nil {
+        orchestrator.SetAnalyticsService(bqService)
+        defer bqService.Close()
+    }
+	router := mux.NewRouter()
+
+	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "Celeste Multi-Agent AI Shopping Assistant")
+	}).Methods("GET")
+
+	router.HandleFunc("/chat", service.handleChat).Methods("POST")
+
+	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		agentList := service.orchestrator.ListAgents()
+		response := map[string]interface{}{
+			"status":      "healthy",
+			"agents":      agentList,
+			"agent_count": len(agentList),
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+	}).Methods("GET")
+
+	router.HandleFunc("/home", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./web/home.html")
+	}).Methods("GET")
+
+	router.HandleFunc("/agents", func(w http.ResponseWriter, r *http.Request) {
+		agentList := service.orchestrator.ListAgents()
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"agents": agentList,
+			"count":  len(agentList),
+		})
+	}).Methods("GET")
+
+	port := ":8080"
+	fmt.Printf("Celeste Multi-Agent System starting on port %s\n", port)
+	log.Fatal(http.ListenAndServe(port, router))
+}
+
+func (s *CelesteService) handleChat(w http.ResponseWriter, r *http.Request) {
+    var req ChatRequest
+    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+        http.Error(w, "Invalid request", http.StatusBadRequest)
+        return
+    }
+
+    userID := req.UserID
+    if userID == "" {
+        userID = "anonymous_user"
+    }
+
+    ctx := r.Context()
+    response, err := s.orchestrator.ProcessUserRequestWithAnalytics(ctx, userID, req.Query)
+    if err != nil {
+        log.Printf("Orchestrator error: %v", err)
+        http.Error(w, "Agent processing failed", http.StatusInternalServerError)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(response)
+}
+	userID := req.UserID
+	if userID == "" {
+		userID = "anonymous_user"
+	}
+
+	ctx := r.Context()
+	response, err := s.orchestrator.ProcessUserRequest(ctx, userID, req.Query)
+	if err != nil {
+		log.Printf("Orchestrator error: %v", err)
+		http.Error(w, "Agent processing failed", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
