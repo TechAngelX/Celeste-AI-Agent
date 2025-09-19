@@ -8,21 +8,17 @@ import (
 
 	"celeste/models"
 	"google.golang.org/genai"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 type InventoryAgent struct {
-	id                 string
-	geminiClient       *genai.Client
-	catalogServiceAddr string
+	id           string
+	geminiClient *genai.Client
 }
 
 func NewInventoryAgent(geminiClient *genai.Client) *InventoryAgent {
 	return &InventoryAgent{
-		id:                 "inventory_agent",
-		geminiClient:       geminiClient,
-		catalogServiceAddr: "productcatalogservice:3550",
+		id:           "inventory_agent",
+		geminiClient: geminiClient,
 	}
 }
 
@@ -40,7 +36,7 @@ func (ia *InventoryAgent) Process(ctx context.Context, input models.AgentMessage
 		return nil, fmt.Errorf("no products to check inventory")
 	}
 
-	inventoryStatus := ia.checkInventoryStatus(ctx, products)
+	inventoryStatus := ia.simulateInventoryCheck(products)
 	recommendations := ia.generateInventoryRecommendations(inventoryStatus)
 
 	return &models.AgentResponse{
@@ -55,16 +51,6 @@ func (ia *InventoryAgent) Process(ctx context.Context, input models.AgentMessage
 		NextActions: []string{"generate_recommendations", "update_user_context"},
 		Success:     true,
 	}, nil
-}
-
-func (ia *InventoryAgent) checkInventoryStatus(ctx context.Context, products []models.Product) map[string]interface{} {
-	conn, err := grpc.Dial(ia.catalogServiceAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		return ia.simulateInventoryCheck(products)
-	}
-	defer conn.Close()
-
-	return ia.simulateInventoryCheck(products)
 }
 
 func (ia *InventoryAgent) simulateInventoryCheck(products []models.Product) map[string]interface{} {
@@ -87,10 +73,9 @@ func (ia *InventoryAgent) simulateInventoryCheck(products []models.Product) map[
 }
 
 func (ia *InventoryAgent) isSeasonalItem(product models.Product) bool {
-	seasonal_keywords := []string{"summer", "winter", "spring", "fall", "holiday"}
-	for _, keyword := range seasonal_keywords {
-		if contains(product.Categories, keyword) ||
-			contains([]string{product.Name, product.Description}, keyword) {
+	seasonalKeywords := []string{"summer", "winter", "spring", "fall", "holiday"}
+	for _, keyword := range seasonalKeywords {
+		if contains(product.Categories, keyword) {
 			return true
 		}
 	}
