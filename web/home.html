@@ -19,50 +19,49 @@
       background: white;
       border-radius: 20px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-      width: 90%;
-      max-width: 900px;
-      max-height: 90vh;
+      width: 75%;
+      max-width: 1000px;
+      height: 95vh;
       overflow: hidden;
     }
     .header {
       background: linear-gradient(135deg, #4f46e5, #7c3aed);
       color: white;
-      padding: 2rem;
+      padding: 1.5rem;
       text-align: center;
     }
     .app-name {
       font-family: 'Georgia', 'Times New Roman', serif;
-      font-size: 3rem;
+      font-size: 2.5rem;
       font-weight: 300;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.3rem;
       letter-spacing: 1px;
       font-style: italic;
     }
     .tagline {
-      font-size: 1rem;
+      font-size: 0.9rem;
       opacity: 0.9;
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.2rem;
       font-weight: 300;
     }
     .motto {
-      font-size: 1.2rem;
+      font-size: 1rem;
       font-weight: 600;
       opacity: 0.95;
       letter-spacing: 1px;
     }
     .main-content {
       display: flex;
-      height: calc(90vh - 200px);
-      min-height: 400px;
+      height: calc(95vh - 130px);
+      min-height: 500px;
     }
-    .chat-section { flex: 2; display: flex; flex-direction: column; }
+    .chat-section { flex: 2.8; display: flex; flex-direction: column; }
     .agent-panel { flex: 1; background: #f8fafc; border-left: 1px solid #e2e8f0; }
     .chat-container {
       flex: 1;
       overflow-y: auto;
       padding: 1.5rem;
       background: #fafafa;
-      max-height: calc(90vh - 350px);
     }
     .message {
       margin-bottom: 1.5rem;
@@ -73,10 +72,11 @@
       justify-content: flex-end;
     }
     .message-content {
-      max-width: 70%;
+      max-width: 75%;
       padding: 1rem 1.5rem;
       border-radius: 1.5rem;
       line-height: 1.5;
+      font-size: 0.9rem;
     }
     .user-message .message-content {
       background: #4f46e5;
@@ -130,7 +130,7 @@
       border: 2px solid #e2e8f0;
       border-radius: 50px;
       outline: none;
-      font-size: 1rem;
+      font-size: 0.9rem;
       transition: border-color 0.2s;
     }
     #messageInput:focus {
@@ -146,6 +146,7 @@
       cursor: pointer;
       transition: all 0.2s;
       min-width: 80px;
+      font-size: 0.9rem;
     }
     .send-btn:hover {
       background: #4338ca;
@@ -155,13 +156,13 @@
       cursor: not-allowed;
     }
     .agent-panel h3 {
-      padding: 1.5rem;
+      padding: 1.2rem;
       background: #e2e8f0;
-      font-size: 1.1rem;
+      font-size: 0.95rem;
       font-weight: 600;
     }
     .agent-status {
-      padding: 1.5rem;
+      padding: 1.2rem;
     }
     .agent {
       display: flex;
@@ -174,15 +175,15 @@
       border: 1px solid #e2e8f0;
     }
     .agent-icon {
-      width: 40px;
-      height: 40px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: bold;
       color: white;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       flex-shrink: 0;
     }
     .search-agent { background: #10b981; }
@@ -191,10 +192,12 @@
     .agent-info h4 {
       font-weight: 600;
       margin-bottom: 0.25rem;
+      font-size: 0.9rem;
     }
     .agent-info p {
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       color: #6b7280;
+      line-height: 1.3;
     }
     .workflow-info {
       margin-top: 1rem;
@@ -206,6 +209,7 @@
     .workflow-info h4 {
       color: #1e40af;
       margin-bottom: 0.5rem;
+      font-size: 0.9rem;
     }
     .actions {
       margin-top: 1rem;
@@ -218,7 +222,7 @@
       background: #f3f4f6;
       border: 1px solid #d1d5db;
       border-radius: 20px;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       cursor: pointer;
       transition: all 0.2s;
     }
@@ -237,7 +241,7 @@
         width: 100%;
         max-width: none;
         border-radius: 15px;
-        max-height: 95vh;
+        height: 95vh;
       }
 
       .header {
@@ -245,7 +249,7 @@
       }
 
       .app-name {
-        font-size: 2.5rem;
+        font-size: 2rem;
       }
 
       .main-content {
@@ -314,11 +318,11 @@
 
     @media (max-width: 480px) {
       .app-name {
-        font-size: 2rem;
+        font-size: 1.8rem;
       }
 
       .tagline {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
       }
 
       .message-content {
@@ -338,7 +342,7 @@
 
       .send-btn {
         padding: 0.875rem 1.25rem;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
       }
 
       .actions {
@@ -347,15 +351,15 @@
 
       .action-btn {
         padding: 0.5rem 0.875rem;
-        font-size: 0.85rem;
+        font-size: 0.75rem;
       }
 
       .agent-info h4 {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
       }
 
       .agent-info p {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
       }
     }
 
@@ -365,7 +369,7 @@
       }
 
       .app-name {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
       }
 
       .chat-container {
@@ -402,7 +406,7 @@
       <div class="chat-container" id="chatContainer">
         <div class="message bot-message">
           <div class="message-content formatted-text">
-            <p>Hello! I'm Céleste,  here to help you find exactly what you're looking for by searching our products, checking availability, and suggesting items you might love. Let's Go ! ❤️</p>
+            <p>Hello! I'm Céleste, here to help you find exactly what you're looking for by searching our products, checking availability, and suggesting items you might love. Let's Go ! ❤️</p>
           </div>
         </div>
       </div>

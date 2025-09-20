@@ -199,16 +199,11 @@ func (ao *AgentOrchestrator) synthesizeResponse(query string, searchResp, invRes
 }
 
 func (ao *AgentOrchestrator) generateAgentCoordinatedResponse(query string, searchResp, invResp, recResp *models.AgentResponse) string {
-	prompt := fmt.Sprintf(`You are Céleste, coordinating multiple AI agents to provide intelligent shopping assistance.
+	prompt := fmt.Sprintf(`You are Céleste, a shopping assistant with multiple AI agents.
 
 Customer query: "%s"
 
-Agent coordination results:
-- Search Agent: Found products and analyzed intent
-- Inventory Agent: Checked stock levels and availability  
-- Recommendation Agent: Generated personalized suggestions
-
-Provide a response that demonstrates this multi-agent coordination while being helpful and conversational.`, query)
+Your agents found products and checked inventory. Provide a brief, helpful response listing the products found. Keep it concise and avoid lengthy explanations about agent coordination.`, query)
 
 	resp, err := ao.geminiClient.Models.GenerateContent(
 		context.Background(),
@@ -217,12 +212,11 @@ Provide a response that demonstrates this multi-agent coordination while being h
 		nil,
 	)
 	if err != nil {
-		return "I've coordinated multiple agents to find the best options for you!"
+		return "I've found some options for you!"
 	}
 
 	return resp.Text()
 }
-
 func (ao *AgentOrchestrator) ListAgents() []string {
 	ao.mutex.RLock()
 	defer ao.mutex.RUnlock()
