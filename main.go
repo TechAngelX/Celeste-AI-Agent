@@ -7,6 +7,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
+	"runtime"
+	"time"
 
 	"github.com/gorilla/mux"
 	"google.golang.org/genai"
@@ -21,6 +24,24 @@ type ChatRequest struct {
 
 type CelesteService struct {
 	orchestrator *agents.AgentOrchestrator
+}
+
+func openBrowser(url string) {
+	var err error
+	switch runtime.GOOS {
+	case "linux":
+		err = exec.Command("xdg-open", url).Start()
+	case "windows":
+		err = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
+	case "darwin":
+		err = exec.Command("open", url).Start()
+	default:
+		fmt.Printf("Open this URL in your browser: %s\n", url)
+		return
+	}
+	if err != nil {
+		fmt.Printf("Could not open browser: %v\nOpen this URL manually: %s\n", err, url)
+	}
 }
 
 func main() {
@@ -64,7 +85,11 @@ func main() {
 	}).Methods("GET")
 
 	router.HandleFunc("/home", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./web/home.html")
+		if _, err := os.Stat("./home.html"); err == nil {
+			http.ServeFile(w, r, "./home.html")
+		} else {
+			http.ServeFile(w, r, "./web/home.html")
+		}
 	}).Methods("GET")
 
 	router.HandleFunc("/agents", func(w http.ResponseWriter, r *http.Request) {
@@ -78,6 +103,12 @@ func main() {
 
 	port := ":8080"
 	fmt.Printf("Celeste Multi-Agent System starting on port %s\n", port)
+
+	go func() {
+		time.Sleep(2 * time.Second)
+		openBrowser("http://localhost:8080/home")
+	}()
+
 	log.Fatal(http.ListenAndServe(port, router))
 }
 

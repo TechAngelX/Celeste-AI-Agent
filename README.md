@@ -1,50 +1,92 @@
-cat > README.md << 'EOF'
-# Introducing Céleste. The AI Shopping Assistant
+# Céleste - Multi-Agent AI Shopping Assistant
 
-An intelligent shopping assistant AI chatbot built for the **GKE Turns 10 Hackathon**. Céleste is an enhanced agentic AI-powered microservice that enhances the Google Online Boutique demo application with conversational shopping assistance using Google Gemini AI.
+A sophisticated multi-agent AI system built for the **GKE Turns 10 Hackathon**. Céleste demonstrates advanced agentic AI coordination using three specialized agents that collaborate to provide intelligent shopping assistance through natural language conversations.
 
-## Hackathon Challenge
+**Live Demo**: [http://34.54.94.175/home](http://34.54.94.175/home)
+![Céleste Demo](readme_images/screenshot1.webp)
 
-This project was developed for the GKE Turns 10 Hackathon (Sept 2025), which challenges participants to integrate cutting-edge agentic AI capabilities with existing microservice applications orchestrated on Google Kubernetes Engine (GKE).
+## Multi-Agent Architecture
 
-**Challenge Requirements:**
-- Enhance Online Boutique microservice application with agentic AI
-- Deploy and orchestrate on Google Kubernetes Engine (GKE)
-- Integrate Google AI models (Gemini)
-- Build new components that interact with existing APIs without modifying core application code
+Céleste implements a true agentic AI system where autonomous agents coordinate to solve complex shopping queries:
 
-## Overview
+### Agent Orchestrator
+Central coordinator that manages agent communication and synthesizes responses from multiple AI agents working in parallel.
 
-Celeste integrates with the existing Online Boutique microservices architecture as a new AI-powered service. Rather than modifying the original application, Celeste operates as an intelligent interface that calls into the established APIs of the e-commerce platform, providing natural language shopping assistance to customers.
+### Search Agent
+- Analyzes customer queries using Google Gemini AI
+- Performs intelligent product matching against catalog data
+- Classifies intent (product search, style advice, price inquiry, etc.)
+- Returns ranked product results with relevance scoring
 
-## Architecture
+### Inventory Agent
+- Simulates real-time stock level checking
+- Analyzes demand patterns and trending items
+- Provides inventory recommendations and alerts
+- Tracks seasonal availability patterns
 
-- **Base Application**: Google Online Boutique (microservices demo)
-- **Language**: Go 1.21+
-- **AI Model**: Google Gemini 2.5 Flash
-- **Framework**: Gorilla Mux for HTTP routing
-- **Deployment Platform**: Google Kubernetes Engine (GKE)
-- **Integration Pattern**: REST API that interfaces with Online Boutique services
+### Recommendation Agent
+- Generates personalized suggestions based on user context
+- Maintains conversation history for improved recommendations
+- Creates contextual follow-up actions
+- Calculates personalization scores for enhanced user experience
+
+## Technology Stack
+
+- **Language**: Go 1.25+ with Gorilla Mux routing
+- **AI Engine**: Google Gemini 2.5 Flash for natural language processing
+- **Agent Framework**: Custom implementation inspired by Agent Development Kit (ADK) patterns
+- **Message Protocol**: MCP-inspired inter-agent communication
+- **Deployment**: Google Kubernetes Engine (GKE) Autopilot
+- **Container Registry**: Google Artifact Registry
+- **Networking**: Kubernetes Ingress with external load balancer
 
 ## Features
 
-- Natural language product queries
-- AI-powered conversational responses using Gemini
-- RESTful API for easy integration with frontend
-- Kubernetes-ready deployment for GKE
-- Health check endpoints for service monitoring
-- Lightweight microservice following Online Boutique patterns
+### Conversational AI Interface
+- Natural language product queries with context understanding
+- Real-time agent coordination visualization
+- Mobile-responsive progressive web interface
+- Animated agent activity indicators showing multi-agent workflow
+
+### Intelligent Product Discovery
+- Semantic search across product catalogs
+- Intent classification and query analysis
+- Synonym matching and category-based filtering
+- Personalized recommendations based on conversation history
+
+### Real-time Agent Coordination
+- Autonomous agent decision-making and task distribution
+- Inter-agent message passing and state synchronization
+- Workflow visualization showing agent participation
+- Graceful error handling and agent fallback mechanisms
 
 ## API Endpoints
 
 ### GET /
-Returns a welcome message from Celeste.
+Welcome message and system status
+
+### GET /home
+Responsive web interface for interactive agent demonstrations
+- **Demo URL**: [http://34.54.94.175/home](http://34.54.94.175/home)
+
+### GET /health
+System health monitoring endpoint that returns agent status and availability
+- Lists all registered agents (search_agent, inventory_agent, recommendation_agent)
+- Reports system health status
+- Shows active agent count for monitoring
+- **Example**: [http://34.54.94.175/health](http://34.54.94.175/health)
+
+### GET /agents
+Agent registry endpoint that lists all available agents and their capabilities
+- Returns live agent inventory with names and status
+- Shows total agent count
+- Useful for debugging and system monitoring
+- **Example**: [http://34.54.94.175/agents](http://34.54.94.175/agents)
 
 ### POST /chat
-Processes natural language queries and returns AI-generated responses.
-
-**Request Body:**
+Multi-agent query processing endpoint that triggers the full agent workflow
 ```json
 {
-  "query": "Can you help me find a dress for a wedding?"
+  "query": "I need winter boots for hiking",
+  "user_id": "demo_user"
 }
