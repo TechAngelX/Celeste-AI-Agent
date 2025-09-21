@@ -6,6 +6,184 @@
   <title>Multi-Agent AI Personal Shopping Assistant</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    .build-info {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 10;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #03dac6;
+      opacity: 0.7;
+      text-shadow: 0 0 5px rgba(3, 218, 198, 0.4);
+      pointer-events: none;
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .splash-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: all 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .splash-screen.fade-out {
+      opacity: 0;
+      transform: scale(1.1);
+      pointer-events: none;
+    }
+
+    .splash-screen::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      animation: ripple 4s infinite;
+    }
+
+    @keyframes ripple {
+      0% { width: 0; height: 0; opacity: 1; }
+      50% { width: 200px; height: 200px; opacity: 0.3; }
+      100% { width: 400px; height: 400px; opacity: 0; }
+    }
+
+    .typewriter-container {
+      text-align: center;
+      color: white;
+      position: relative;
+      z-index: 2;
+    }
+
+    .typewriter {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-size: 4rem;
+      font-weight: 300;
+      font-style: italic;
+      letter-spacing: 3px;
+      border-right: 3px solid white;
+      padding-right: 15px;
+      animation: blink-cursor 1.2s infinite;
+      text-shadow: 0 0 20px rgba(255,255,255,0.3);
+      transform: translateY(20px);
+      opacity: 0;
+      animation: slideUp 0.8s ease-out 0.5s forwards, blink-cursor 1.2s infinite 1.3s;
+    }
+
+    @keyframes slideUp {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes blink-cursor {
+      0%, 50% { border-color: white; }
+      51%, 100% { border-color: transparent; }
+    }
+
+    .subtitle {
+      font-size: 1.3rem;
+      opacity: 0;
+      margin-top: 1.5rem;
+      font-weight: 300;
+      letter-spacing: 1px;
+      transform: translateY(30px);
+      animation: slideUpFade 1.2s ease-out 3.5s forwards;
+      text-shadow: 0 0 15px rgba(255,255,255,0.2);
+    }
+
+    @keyframes slideUpFade {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .loading-container {
+      margin-top: 3rem;
+      opacity: 0;
+      animation: slideUpFade 1s ease-out 4.5s forwards;
+    }
+
+    .loading-text {
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      opacity: 0.8;
+    }
+
+    .loading-dots-splash {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .loading-dots-splash span {
+      width: 12px;
+      height: 12px;
+      background: white;
+      border-radius: 50%;
+      animation: wave 1.8s ease-in-out infinite;
+      box-shadow: 0 0 10px rgba(255,255,255,0.4);
+    }
+
+    .loading-dots-splash span:nth-child(1) { animation-delay: 0s; }
+    .loading-dots-splash span:nth-child(2) { animation-delay: 0.3s; }
+    .loading-dots-splash span:nth-child(3) { animation-delay: 0.6s; }
+
+    @keyframes wave {
+      0%, 40%, 100% {
+        transform: translateY(0) scale(1);
+        opacity: 0.6;
+      }
+      20% {
+        transform: translateY(-15px) scale(1.2);
+        opacity: 1;
+      }
+    }
+
+    .progress-bar {
+      width: 200px;
+      height: 2px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 1px;
+      margin: 2rem auto 0;
+      overflow: hidden;
+      opacity: 0;
+      animation: slideUpFade 1s ease-out 5s forwards;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, transparent, white, transparent);
+      width: 100%;
+      transform: translateX(-100%);
+      animation: progress 2s ease-out 5.5s forwards;
+    }
+
+    @keyframes progress {
+      to {
+        transform: translateX(0);
+      }
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -15,6 +193,7 @@
       justify-content: center;
       padding: 1rem;
     }
+
     .container {
       background: white;
       border-radius: 20px;
@@ -23,7 +202,18 @@
       max-width: 1000px;
       height: 95vh;
       overflow: hidden;
+      opacity: 0;
+      transform: translateY(30px) scale(0.95);
+      animation: appEnter 1s ease-out 7.5s forwards;
     }
+
+    @keyframes appEnter {
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
     .header {
       background: linear-gradient(135deg, #4f46e5, #7c3aed);
       color: white;
@@ -231,6 +421,14 @@
     }
 
     @media (max-width: 768px) {
+      .typewriter { font-size: 3rem; }
+
+      .build-info {
+        top: 10px;
+        left: 10px;
+        font-size: 0.6rem;
+      }
+
       body {
         padding: 0.5rem;
         align-items: flex-start;
@@ -317,6 +515,9 @@
     }
 
     @media (max-width: 480px) {
+      .typewriter { font-size: 2.5rem; }
+      .subtitle { font-size: 1.1rem; }
+
       .app-name {
         font-size: 1.8rem;
       }
@@ -394,6 +595,28 @@
   </style>
 </head>
 <body>
+<div class="build-info">
+  <span>Build Date: <span id="buildDate">Loading...</span></span>
+</div>
+
+<div class="splash-screen" id="splashScreen">
+  <div class="typewriter-container">
+    <div class="typewriter" id="typewriter"></div>
+    <div class="subtitle">Multi-agent AI shopping assistant</div>
+    <div class="loading-container">
+      <div class="loading-text">Initializing</div>
+      <div class="loading-dots-splash">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="container">
   <div class="header">
     <h1 class="app-name">Céleste</h1>
@@ -456,6 +679,44 @@
 </div>
 
 <script>
+  function setBuildDate() {
+    const now = new Date();
+    const buildDate = now.toLocaleDateString('en-GB', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }) + ' ' + now.toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    const customVersion = 'Ver: V11';
+    document.getElementById('buildDate').textContent = buildDate + ' | ' + customVersion;
+  }
+  setBuildDate();
+
+  const text = "Céleste";
+  const typewriterElement = document.getElementById('typewriter');
+  const splashScreen = document.getElementById('splashScreen');
+  let i = 0;
+
+  function typeWriter() {
+    if (i < text.length) {
+      typewriterElement.textContent += text.charAt(i);
+      i++;
+      setTimeout(typeWriter, 150);
+    } else {
+      setTimeout(() => {
+        splashScreen.classList.add('fade-out');
+        setTimeout(() => {
+          splashScreen.style.display = 'none';
+        }, 1500);
+      }, 3000);
+    }
+  }
+
+  setTimeout(typeWriter, 1000);
+
   let isProcessing = false;
 
   const placeholders = [
@@ -571,13 +832,13 @@
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
     contentDiv.innerHTML = `
-                Thinking
-                <div class="loading-dots">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            `;
+                  Thinking
+                  <div class="loading-dots">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                  </div>
+              `;
 
     messageDiv.appendChild(contentDiv);
     container.appendChild(messageDiv);
@@ -603,10 +864,10 @@
     }).join(' → ');
 
     workflowDetails.innerHTML = `
-                <strong>Path:</strong> ${agentNames}<br>
-                <strong>ID:</strong> ${workflowId.slice(-8)}<br>
-                <strong>Personalised:</strong> ${personalized ? 'Yes' : 'No'}
-            `;
+                  <strong>Path:</strong> ${agentNames}<br>
+                  <strong>ID:</strong> ${workflowId.slice(-8)}<br>
+                  <strong>Personalised:</strong> ${personalized ? 'Yes' : 'No'}
+              `;
 
     workflowInfo.style.display = 'block';
 

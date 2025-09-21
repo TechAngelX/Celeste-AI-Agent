@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive API Comparison - Online Boutique vs Céleste</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Monaco', 'Consolas', monospace;
+      background: #1a1a1a;
+      color: #fff;
+      height: 100vh;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+      text-align: center;
+    }
+    .header h1 { font-size: 24px; margin-bottom: 10px; }
+    .header p { font-size: 14px; opacity: 0.9; }
+    .query-section {
+      background: #2d2d2d;
+      padding: 15px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .query-input {
+      flex: 1;
+      padding: 10px;
+      background: #1a1a1a;
+      border: 1px solid #555;
+      color: white;
+      border-radius: 5px;
+    }
+    .query-btn {
+      padding: 10px 20px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .query-btn:hover { background: #5a67d8; }
+    .container {
+      display: flex;
+      height: calc(100vh - 180px);
+    }
+    .panel {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      border-right: 2px solid #333;
+    }
+    .panel:last-child { border-right: none; }
+    .panel h2 {
+      background: #333;
+      padding: 15px;
+      margin: -20px -20px 20px -20px;
+      font-size: 16px;
+    }
+    .left-panel { background: #0f1419; }
+    .right-panel { background: #1a0f1a; }
+    .response-container {
+      background: #2d2d2d;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-left: 4px solid #4a90e2;
+      min-height: 100px;
+    }
+    .loading {
+      color: #fbbf24;
+      font-style: italic;
+    }
+    .json {
+      white-space: pre-wrap;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .key { color: #7dd3fc; }
+    .string { color: #84cc16; }
+    .number { color: #f97316; }
+    .workflow {
+      background: #1e3a8a;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      border-left: 4px solid #3b82f6;
+    }
+    .agent-response {
+      background: #374151;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+<div class="header">
+  <h1>Interactive API Comparison</h1>
+  <p>Real-time: Online Boutique Raw Data vs Céleste Multi-Agent Processing</p>
+</div>
+
+<div class="query-section">
+  <input type="text" class="query-input" id="queryInput" placeholder="Enter your query (e.g., black leather shoes)" value="black leather shoes">
+  <button class="query-btn" onclick="runComparison()">Run Comparison</button>
+  <button class="query-btn" onclick="clearResults()">Clear</button>
+</div>
+
+<div class="container">
+  <!-- LEFT PANEL: Simulated Online Boutique Response -->
+  <div class="panel left-panel">
+    <h2>🏪 Online Boutique - Basic Response</h2>
+    <div class="response-container" id="basicResponse">
+      <div class="loading">Enter a query to see basic product matching...</div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL: Live Céleste Response -->
+  <div class="panel right-panel">
+    <h2>🤖 Céleste - Live Multi-Agent AI</h2>
+    <div class="workflow" id="workflowInfo" style="display: none;">
+      <h3>Multi-Agent Workflow</h3>
+      <p id="workflowDetails">Initializing agents...</p>
+    </div>
+    <div class="response-container" id="celesteResponse">
+      <div class="loading">Enter a query to see intelligent agent processing...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  async function runComparison() {
+    const query = document.getElementById('queryInput').value;
+    if (!query.trim()) return;
+
+    document.getElementById('basicResponse').innerHTML = '<div class="loading">Processing basic search...</div>';
+    document.getElementById('celesteResponse').innerHTML = '<div class="loading">Coordinating AI agents...</div>';
+    document.getElementById('workflowInfo').style.display = 'block';
+    document.getElementById('workflowDetails').innerHTML = 'Activating Search → Inventory → Recommendation agents...';
+
+    setTimeout(() => {
+      const basicHtml = `
+                    <h3>Basic Product Search Results</h3>
+                    <div class="json">
+<span class="key">Query:</span> <span class="string">"${query}"</span>
+
+<span class="key">Basic Match Results:</span>
+{
+  <span class="key">"results"</span>: [
+    {
+      <span class="key">"id"</span>: <span class="string">"BASIC001"</span>,
+      <span class="key">"name"</span>: <span class="string">"Product Match"</span>,
+      <span class="key">"description"</span>: <span class="string">"Basic keyword matching result"</span>
+    }
+  ],
+  <span class="key">"total"</span>: <span class="number">1</span>,
+  <span class="key">"processing"</span>: <span class="string">"keyword_search_only"</span>
+}
+                    </div>
+                    <p style="margin-top: 15px; color: #fbbf24;">⚠️ Limited to simple keyword matching - no intelligence or context</p>
+                `;
+      document.getElementById('basicResponse').innerHTML = basicHtml;
+    }, 1000);
+
+    try {
+      const response = await fetch('http://34.54.94.175/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: query,
+          user_id: 'api_demo_user'
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.agent_path) {
+        const agentPath = data.agent_path.join(' → ');
+        document.getElementById('workflowDetails').innerHTML = `
+                        <strong>Path:</strong> ${agentPath}<br>
+                        <strong>Workflow ID:</strong> ${data.workflow_id || 'N/A'}<br>
+                        <strong>Personalized:</strong> ${data.personalized ? 'Yes' : 'No'}
+                    `;
+      }
+
+      const celesteHtml = `
+                    <div class="agent-response">
+                        <h3>Intelligent Multi-Agent Response</h3>
+                        <p>${data.message}</p>
+                    </div>
+                    <div class="json">
+<span class="key">Enhanced Response Data:</span>
+{
+  <span class="key">"agent_coordination"</span>: <span class="string">"${data.agent_path ? data.agent_path.join(' → ') : 'N/A'}"</span>,
+  <span class="key">"personalized"</span>: <span class="number">${data.personalized}</span>,
+  <span class="key">"workflow_id"</span>: <span class="string">"${data.workflow_id || 'N/A'}"</span>,
+  <span class="key">"actions"</span>: ${JSON.stringify(data.actions || [])},
+  <span class="key">"intelligence_added"</span>: <span class="string">"semantic_understanding + context_awareness + personalization"</span>
+}
+                    </div>
+                `;
+      document.getElementById('celesteResponse').innerHTML = celesteHtml;
+
+    } catch (error) {
+      document.getElementById('celesteResponse').innerHTML = `
+                    <div style="color: #f87171;">
+                        <h3>Connection Error</h3>
+                        <p>Could not connect to Céleste API at http://34.54.94.175/chat</p>
+                        <p>Error: ${error.message}</p>
+                    </div>
+                `;
+    }
+  }
+
+  function clearResults() {
+    document.getElementById('basicResponse').innerHTML = '<div class="loading">Enter a query to see basic product matching...</div>';
+    document.getElementById('celesteResponse').innerHTML = '<div class="loading">Enter a query to see intelligent agent processing...</div>';
+    document.getElementById('workflowInfo').style.display = 'none';
+    document.getElementById('queryInput').value = '';
+  }
+
+  document.getElementById('queryInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      runComparison();
+    }
+  });
+</script>
+</body>
+</html>

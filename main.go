@@ -92,6 +92,22 @@ func main() {
 		}
 	}).Methods("GET")
 
+	router.HandleFunc("/home", func(w http.ResponseWriter, r *http.Request) {
+		if _, err := os.Stat("./home.html"); err == nil {
+			http.ServeFile(w, r, "./home.html")
+		} else {
+			http.ServeFile(w, r, "./web/home.html")
+		}
+	}).Methods("GET")
+
+	router.HandleFunc("/api-comparison", func(w http.ResponseWriter, r *http.Request) {
+		if _, err := os.Stat("./api-comparison.html"); err == nil {
+			http.ServeFile(w, r, "./api-comparison.html")
+		} else {
+			http.ServeFile(w, r, "./web/api-comparison.html")
+		}
+	}).Methods("GET")
+
 	router.HandleFunc("/agents", func(w http.ResponseWriter, r *http.Request) {
 		agentList := service.orchestrator.ListAgents()
 		w.Header().Set("Content-Type", "application/json")
@@ -100,7 +116,6 @@ func main() {
 			"count":  len(agentList),
 		})
 	}).Methods("GET")
-
 	port := ":8080"
 	fmt.Printf("Celeste Multi-Agent System starting on port %s\n", port)
 
