@@ -11,12 +11,12 @@ FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 
-# Copy files from correct paths
 COPY --from=builder /app/celeste-agent .
 COPY --from=builder /app/web/home.html .
 COPY --from=builder /app/data/itemCatalogue.json ./data/
+COPY --from=builder /app/api-comparison.html .
 
-# Create data directory in container
+
 RUN mkdir -p data
 
 EXPOSE 8080
